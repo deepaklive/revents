@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Grid, GridColumn, Button } from 'semantic-ui-react';
 import EventList from '../EventList/EventList';
 import EventForm from '../EventForm/EventForm';
+import cuid from 'cuid';
 
 const eventsFromDashboard = [
   {
@@ -19,14 +20,14 @@ const eventsFromDashboard = [
       {
         id: 'a',
         name: 'Bob',
-        photoURL: 'https://randomuser.me/api/portraits/men/20.jpg'
+        photoURL: 'https://randomuser.me/api/portraits/men/20.jpg',
       },
       {
         id: 'b',
         name: 'Tom',
-        photoURL: 'https://randomuser.me/api/portraits/men/22.jpg'
-      }
-    ]
+        photoURL: 'https://randomuser.me/api/portraits/men/22.jpg',
+      },
+    ],
   },
   {
     id: '2',
@@ -43,41 +44,57 @@ const eventsFromDashboard = [
       {
         id: 'b',
         name: 'Tom',
-        photoURL: 'https://randomuser.me/api/portraits/men/22.jpg'
+        photoURL: 'https://randomuser.me/api/portraits/men/22.jpg',
       },
       {
         id: 'a',
         name: 'Bob',
-        photoURL: 'https://randomuser.me/api/portraits/men/20.jpg'
-      }
-    ]
-  }
-]
-
-
+        photoURL: 'https://randomuser.me/api/portraits/men/20.jpg',
+      },
+    ],
+  },
+];
 
 class EventDashboard extends Component {
-  state ={
+  state = {
     events: eventsFromDashboard,
-    isOpen: false
-  }
+    isOpen: false,
+  };
 
-  handleIsOpenToggle =() =>{
-    this.setState(({isOpen}) => ({
-      isOpen: !isOpen
-    }))
-  }
+  handleIsOpenToggle = () => {
+    this.setState(({ isOpen }) => ({
+      isOpen: !isOpen,
+    }));
+  };
+
+  handleCreateEvent = (newEvent) => {
+    newEvent.id = cuid();
+    newEvent.hostPhotoURL = '/assets/user.png';
+    this.setState(({ events }) => ({
+      events: [...events, newEvent],
+      isOpen:false
+    }));
+  };
 
   render() {
-    const {events, isOpen} = this.state;
+    const { events, isOpen } = this.state;
     return (
       <Grid>
         <GridColumn width={10}>
-          <EventList events = {events}/>
+          <EventList events={events} />
         </GridColumn>
         <GridColumn width={6}>
-          <Button onClick={this.handleIsOpenToggle} positive content="Create Event"  />
-          {isOpen && <EventForm cancelFormOpen={this.handleIsOpenToggle} />}
+          <Button
+            onClick={this.handleIsOpenToggle}
+            positive
+            content="Create Event"
+          />
+          {isOpen && (
+            <EventForm
+              createEvent={this.handleCreateEvent}
+              cancelFormOpen={this.handleIsOpenToggle}
+            />
+          )}
         </GridColumn>
       </Grid>
     );
