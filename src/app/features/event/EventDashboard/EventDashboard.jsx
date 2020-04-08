@@ -137,7 +137,6 @@ class EventDashboard extends Component {
               selectedEvent={selectedEvent}
               createEvent={this.handleCreateEvent}
               cancelFormOpen={this.handleFormCancel}
-              
             />
           )}
         </GridColumn>
