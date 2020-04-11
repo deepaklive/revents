@@ -1,12 +1,19 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { reduxForm, Field } from 'redux-form';
+import {
+  composeValidators,
+  combineValidators,
+  isRequired,
+  hasLengthGreaterThan,
+} from 'revalidate';
 import cuid from 'cuid';
 import { Segment, Form, Button, Grid, Header } from 'semantic-ui-react';
 import { createEvent, updateEvent } from '../eventActions';
 import TextInput from '../../../common/form/TextInput';
 import TextArea from '../../../common/form/TextArea';
 import SelectInput from '../../../common/form/SelectInput';
+import DateInput from '../../../common/form/DateInput';
 
 const mapState = (state, ownProps) => {
   const eventId = ownProps.match.params.id;
@@ -26,6 +33,20 @@ const actions = {
   createEvent,
   updateEvent,
 };
+
+const validate = combineValidators({
+  title: isRequired({ message: 'The event title is required' }),
+  category: isRequired({ message: 'The Category is required' }),
+  description: composeValidators(
+    isRequired({ message: 'The Description is required' }),
+    hasLengthGreaterThan(4)({
+      message: 'Description needs to be at least 5 characters',
+    })
+  )(),
+  city: isRequired('City'),
+  venue: isRequired('Venue'),
+  date: isRequired('Date'),
+});
 
 const category = [
   { key: 'drinks', text: 'Drinks', value: 'drinks' },
@@ -54,7 +75,13 @@ class EventForm extends Component {
   };
 
   render() {
-    const { history, initialValues } = this.props;
+    const {
+      history,
+      initialValues,
+      invalid,
+      submitting,
+      pristine,
+    } = this.props;
     return (
       <Grid>
         <Grid.Column width={10}>
@@ -98,10 +125,20 @@ class EventForm extends Component {
               />
               <Field
                 name="date"
-                component={TextInput}
+                component={DateInput}
+                
                 placeholder="Event Date"
+                showTimeSelect
+                timeFormat="HH:mm"
+                timeIntervals={15}
+                timeCaption="time"
+                dateFormat="MMMM d, yyyy h:mm aa"
               />
-              <Button positive type="submit">
+              <Button
+                disabled={invalid || submitting || pristine}
+                positive
+                type="submit"
+              >
                 Submit
               </Button>
               <Button
@@ -125,4 +162,4 @@ class EventForm extends Component {
 export default connect(
   mapState,
   actions
-)(reduxForm({ form: 'eventForm' })(EventForm));
+)(reduxForm({ form: 'eventForm', validate })(EventForm));
