@@ -1,3 +1,5 @@
+/*global google */
+
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { reduxForm, Field } from 'redux-form';
@@ -14,6 +16,8 @@ import TextInput from '../../../common/form/TextInput';
 import TextArea from '../../../common/form/TextArea';
 import SelectInput from '../../../common/form/SelectInput';
 import DateInput from '../../../common/form/DateInput';
+import PlaceInput from '../../../common/form/PlaceInput';
+import { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
 
 const mapState = (state, ownProps) => {
   const eventId = ownProps.match.params.id;
@@ -58,7 +62,14 @@ const category = [
 ];
 
 class EventForm extends Component {
+  state = {
+    cityLatLng: {},
+    venueLatLng: {},
+  };
+
+  // Form Submit Method
   onFormSubmit = (values) => {
+    values.venueLatLng = this.state.venueLatLng;
     if (this.props.initialValues.id) {
       this.props.updateEvent(values);
       this.props.history.push(`/events/${this.props.initialValues.id}`);
@@ -72,6 +83,39 @@ class EventForm extends Component {
       this.props.createEvent(newEvent);
       this.props.history.push(`/events/${newEvent.id}`);
     }
+  };
+
+
+  //Method to Select City
+  handleCitySelect = (selectedCity) => {
+    geocodeByAddress(selectedCity)
+      .then((results) => getLatLng(results[0]))
+      .then((latLng) => {
+        this.setState({
+          cityLatLng: latLng,
+        });
+        console.log('Success', latLng);
+      })
+      .then(() => {
+        this.props.change('city', selectedCity);
+      })
+      .catch((error) => console.error('Error', error));
+  };
+
+  //Method to Select Venue inside Selected City
+  handleVenueSelect = (selectedVenue) => {
+    geocodeByAddress(selectedVenue)
+      .then((results) => getLatLng(results[0]))
+      .then((latLng) => {
+        this.setState({
+          venueLatLng: latLng,
+        });
+        console.log('Success', latLng);
+      })
+      .then(() => {
+        this.props.change('venue', selectedVenue);
+      })
+      .catch((error) => console.error('Error', error));
   };
 
   render() {
@@ -115,18 +159,25 @@ class EventForm extends Component {
               </Header>
               <Field
                 name="city"
-                component={TextInput}
+                component={PlaceInput}
+                options={{ types: ['(cities)'] }}
+                onSelect={this.handleCitySelect}
                 placeholder="Event City"
               />
               <Field
                 name="venue"
-                component={TextInput}
+                component={PlaceInput}
+                options={{
+                  location: new google.maps.LatLng(this.state.cityLatLng),
+                  radius: 100,
+                  types: ['establishment'],
+                }}
+                onSelect={this.handleVenueSelect}
                 placeholder="Event Venue"
               />
               <Field
                 name="date"
                 component={DateInput}
-                
                 placeholder="Event Date"
                 showTimeSelect
                 timeFormat="HH:mm"
