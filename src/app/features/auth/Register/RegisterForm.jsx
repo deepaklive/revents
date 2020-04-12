@@ -1,15 +1,36 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Form, Segment, Button, Label } from 'semantic-ui-react';
+import { Form, Segment, Button, Label, Divider } from 'semantic-ui-react';
+
 import { Field, reduxForm } from 'redux-form';
 import TextInput from '../../../common/form/TextInput';
-import { registerUser } from '../authActions';
+import { registerUser, socialLogin } from '../authActions';
+import { combineValidators, isRequired, composeValidators, matchesField } from 'revalidate';
+import { isValidEmail , customIsRequired } from '../../../common/validate/validateUtil'
+import SocialLogin from '../SocialLogin/SocialLogin';
 
 const actions = {
   registerUser,
+  socialLogin
 };
 
-const RegisterForm = ({ handleSubmit, registerUser, error }) => {
+const validate = combineValidators({
+  displayName: isRequired('Display Name'),
+  email: composeValidators(customIsRequired,isValidEmail)(),
+  password: isRequired('password'),
+  confirmPassword: matchesField('password')({
+    message: 'Passwords do not match',
+  }),
+});
+
+const RegisterForm = ({
+  handleSubmit,
+  registerUser,
+  socialLogin,
+  error,
+  invalid,
+  submitting,
+}) => {
   return (
     <div>
       <Form size="large" onSubmit={handleSubmit(registerUser)}>
@@ -32,6 +53,12 @@ const RegisterForm = ({ handleSubmit, registerUser, error }) => {
             component={TextInput}
             placeholder="Password"
           />
+          <Field
+            name="confirmPassword"
+            type="password"
+            component={TextInput}
+            placeholder="confirm Password"
+          />
 
           {error && (
             <div>
@@ -41,10 +68,17 @@ const RegisterForm = ({ handleSubmit, registerUser, error }) => {
               <br />
             </div>
           )}
-          <br/>
-          <Button fluid size="large" color="teal">
+          <br />
+          <Button
+            disabled={invalid || submitting}
+            fluid
+            size="large"
+            color="teal"
+          >
             Register
           </Button>
+          <Divider horizontal>Or</Divider>
+          <SocialLogin socialLogin={socialLogin}/>
         </Segment>
       </Form>
     </div>
@@ -54,4 +88,4 @@ const RegisterForm = ({ handleSubmit, registerUser, error }) => {
 export default connect(
   null,
   actions
-)(reduxForm({ form: 'registerForm' })(RegisterForm));
+)(reduxForm({ form: 'registerForm', validate })(RegisterForm));

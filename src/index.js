@@ -42,14 +42,8 @@ if (module.hot) {
     setTimeout(render);
   })
 }
-
-render();
-// ReactDOM.render(
-//   <React.StrictMode>
-//     <App />
-//   </React.StrictMode>,
-//   document.getElementById('root')
-// );
-
+store.firebaseAuthIsReady.then(() => {
+  render();
+})
 
 serviceWorker.unregister();
