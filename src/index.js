@@ -9,10 +9,10 @@ import * as serviceWorker from './serviceWorker';
 import { BrowserRouter } from 'react-router-dom';
 import { configureStore } from './app/store/configureStore';
 import ScrollToTop from './app/common/util/ScrollToTop';
-import { loadEvent } from './app/features/event/eventActions';
+
 
 const store = configureStore();
-store.dispatch(loadEvent());
+
 
 // console.log(store.getState());
 
