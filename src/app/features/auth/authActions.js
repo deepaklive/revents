@@ -110,15 +110,17 @@ export const socialLogin = (selectedProvider) => {
       if (user.additionalUserInfo.isNewUser) {
         let newUser = {
           uid: firebase.auth().currentUser.uid,
-          displayName: user.displayName,
+          displayName: user.profile.displayName,
           photoURL: user.profile.avatarUrl,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
+        const {profile,...userToSet} = newUser;
+        ///console.log('NEW USER : ' + userToSet );
         await firebase
           .firestore()
           .collection('users')
           .doc(newUser.uid)
-          .set(newUser);
+          .set(userToSet);
       }
     } catch (error) {
       console.log(error);
