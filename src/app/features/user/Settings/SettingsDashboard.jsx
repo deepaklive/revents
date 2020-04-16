@@ -6,9 +6,9 @@ import BasicPage from './BasicPage';
 import AboutPage from './AboutPage';
 import AccountPage from './AccountPage';
 import SettingsNav from './SettingsNav';
-import PhotoPage from './PhotoPage';
+import PhotoPage from './Photos/PhotosPage';
 import { updatePassword } from '../../auth/authActions';
-import {updateProfile} from './../userActions';
+import { updateProfile } from './../userActions';
 
 const actions = {
   updatePassword,
